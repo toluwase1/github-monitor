@@ -40,18 +40,27 @@ func main() {
 
 	ctrl := controller.NewController(commitUsecase, repoUsecase)
 
-	repoDetails, err := githubClient.GetRepository(repoName)
-	if err != nil {
-		log.Fatalf("Failed to fetch repository details: %v", err)
-	}
-	if err := repoRepo.Save(repoDetails); err != nil {
-		log.Fatalf("Failed to save repository details: %v", err)
-	}
+	getRepoDetails(err, repoRepo, githubClient)
 
 	scheduler.StartCommitScheduler(repoName, commitUsecase)
 
 	r := router.NewRouter(ctrl)
 	if err := r.Run(":8081"); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
+	}
+}
+
+func getRepoDetails(err error, repoRepo repository.RepositoryRepository, githubClient *github.GithubClient) {
+	repoDetails, err := repoRepo.GetByName(repoName)
+	if err != nil || repoDetails == nil {
+		repoDetails, err = githubClient.GetRepository(repoName)
+		if err != nil {
+			log.Fatalf("Failed to fetch repository details: %v", err)
+		}
+		if err := repoRepo.Save(repoDetails); err != nil {
+			log.Fatalf("Failed to save repository details: %v", err)
+		}
+	} else {
+		log.Println("Repository details already exist in the database.")
 	}
 }
