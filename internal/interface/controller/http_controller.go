@@ -37,3 +37,13 @@ func (ctrl *Controller) GetRepository(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, repo)
 }
+
+func (ctrl *Controller) ResetCollection(context *gin.Context) {
+
+}
+
+/*
+if err := commitUsecase.ResetCollection("chromium/chromium", cfg.StartDate); err != nil {
+		log.Fatalf("Failed to reset collection: %v", err)
+	}
+*/

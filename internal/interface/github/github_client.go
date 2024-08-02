@@ -17,6 +17,8 @@ func NewGithubClient(token string) *GithubClient {
 	return &GithubClient{Token: token}
 }
 
+// check the db for the time of the latest commit
+// before fetching from that time
 func (c *GithubClient) GetCommits(repoName string) ([]model.Commit, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/commits", repoName)
 	req, err := http.NewRequest("GET", url, nil)
@@ -64,6 +66,7 @@ func (c *GithubClient) GetCommits(repoName string) ([]model.Commit, error) {
 			Author:  apiCommit.Commit.Author.Name,
 			Date:    apiCommit.Commit.Author.Date,
 			URL:     apiCommit.URL,
+			Sha:     apiCommit.SHA,
 		}
 	}
 

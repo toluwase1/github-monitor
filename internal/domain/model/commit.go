@@ -9,4 +9,5 @@ type Commit struct {
 	Author       string
 	Date         time.Time
 	URL          string `gorm:"unique;not null"`
+	Sha          string `gorm:"unique;not null"`
 }

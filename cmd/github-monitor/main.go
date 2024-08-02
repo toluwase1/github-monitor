@@ -36,16 +36,16 @@ func main() {
 	repoUsecase := usecase.NewRepositoryUsecase(repoRepo, githubClient)
 	commitUsecase := usecase.NewCommitUsecase(commitRepo, repoRepo, githubClient)
 
-	if err := commitUsecase.ResetCollection("chromium/chromium", cfg.StartDate); err != nil {
-		log.Fatalf("Failed to reset collection: %v", err)
-	}
-
 	ctrl := controller.NewController(commitUsecase, repoUsecase)
 
 	scheduler.StartCommitScheduler("chromium/chromium", commitUsecase)
 
 	r := router.NewRouter(ctrl)
-	if err := r.Run(":8080"); err != nil {
+	if err := r.Run(":8081"); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
+
+//get repo details separately at startup
+// getting commits
+//
