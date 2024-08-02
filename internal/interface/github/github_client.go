@@ -62,11 +62,12 @@ func (c *GithubClient) GetCommits(repoName string) ([]model.Commit, error) {
 	commits := make([]model.Commit, len(apiCommits))
 	for i, apiCommit := range apiCommits {
 		commits[i] = model.Commit{
-			Message: apiCommit.Commit.Message,
-			Author:  apiCommit.Commit.Author.Name,
-			Date:    apiCommit.Commit.Author.Date,
-			URL:     apiCommit.URL,
-			Sha:     apiCommit.SHA,
+			Message:        apiCommit.Commit.Message,
+			Author:         apiCommit.Commit.Author.Name,
+			Date:           apiCommit.Commit.Author.Date,
+			URL:            apiCommit.URL,
+			Sha:            apiCommit.SHA,
+			RepositoryName: "chromium",
 		}
 	}
 

@@ -14,3 +14,7 @@ func NewRouter(ctrl *controller.Controller) *gin.Engine {
 	r.GET("/authors/top/:n", ctrl.GetTopAuthors)
 	return r
 }
+
+//test
+//config date
+//separation of concern

@@ -1,5 +1,3 @@
-// internal/infrastructure/scheduler/scheduler.go
-
 package scheduler
 
 import (
@@ -9,7 +7,7 @@ import (
 )
 
 func StartCommitScheduler(repoName string, commitUsecase usecase.CommitUsecase) {
-	ticker := time.NewTicker(1 * time.Hour)
+	ticker := time.NewTicker(2 * time.Second)
 	go func() {
 		for {
 			select {
@@ -25,15 +23,14 @@ func StartCommitScheduler(repoName string, commitUsecase usecase.CommitUsecase) 
 }
 
 func checkForNewCommits(repoName string, commitUsecase usecase.CommitUsecase) error {
-	// Fetch the latest commits from the GitHub API
+
 	commits, err := commitUsecase.GetCommitsByRepositoryName(repoName)
 	if err != nil {
 		return err
 	}
 
-	// Process commits (e.g., save to DB if not already present)
 	for _, commit := range commits {
-		err := commitUsecase.SaveCommitIfNotExists(&commit)
+		err = commitUsecase.SaveCommitIfNotExists(&commit)
 		if err != nil {
 			log.Printf("Error saving commit: %v", err)
 		}

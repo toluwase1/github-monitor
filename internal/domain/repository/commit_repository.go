@@ -11,6 +11,7 @@ type CommitRepository interface {
 	GetByRepositoryID(repositoryID int) ([]model.Commit, error)
 	DeleteByRepositoryIDAndDate(repositoryID int, startDate time.Time) error
 	GetTopAuthorsByCommitCount(n int) ([]AuthorCommitCount, error)
+	GetCommitsByNameFromDB(name string) ([]model.Commit, error)
 }
 
 type commitRepository struct {

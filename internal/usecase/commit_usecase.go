@@ -4,11 +4,13 @@ import (
 	"github-monitor/internal/domain/model"
 	"github-monitor/internal/domain/repository"
 	"github-monitor/internal/interface/github"
+	"log"
 	"time"
 )
 
 type CommitUsecase interface {
 	GetCommitsByRepositoryName(name string) ([]model.Commit, error)
+	GetCommitsByRepoNameFromDB(name string) ([]model.Commit, error)
 	SaveCommitIfNotExists(commit *model.Commit) error
 	ResetCollection(name string, startDate time.Time) error
 	GetTopAuthorsByCommitCount(n int) ([]repository.AuthorCommitCount, error)
@@ -30,6 +32,10 @@ func NewCommitUsecase(commitRepo repository.CommitRepository, repoRepo repositor
 
 func (uc *commitUsecase) GetCommitsByRepositoryName(name string) ([]model.Commit, error) {
 	return uc.githubClient.GetCommits(name)
+}
+
+func (uc *commitUsecase) GetCommitsByRepoNameFromDB(name string) ([]model.Commit, error) {
+	return uc.commitRepo.GetCommitsByNameFromDB(name)
 }
 
 func (uc *commitUsecase) SaveCommitIfNotExists(commit *model.Commit) error {
@@ -62,12 +68,13 @@ func (uc *commitUsecase) ResetCollection(name string, startDate time.Time) error
 	// Fetch new commits from the GitHub API starting from the start date
 	commits, err := uc.githubClient.GetCommits(name)
 	if err != nil {
+		log.Println("client error", err)
 		return err
 	}
 
 	for _, commit := range commits {
 		if commit.Date.After(startDate) || commit.Date.Equal(startDate) {
-			err := uc.SaveCommitIfNotExists(&commit)
+			err = uc.SaveCommitIfNotExists(&commit)
 			if err != nil {
 				return err
 			}

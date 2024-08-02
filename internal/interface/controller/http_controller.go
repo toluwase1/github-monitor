@@ -22,7 +22,7 @@ func NewController(commitUC usecase.CommitUsecase, repoUC usecase.RepositoryUsec
 
 func (ctrl *Controller) GetCommits(c *gin.Context) {
 	repoName := c.Param("name")
-	commits, err := ctrl.commitUsecase.GetCommitsByRepositoryName(repoName)
+	commits, err := ctrl.commitUsecase.GetCommitsByRepoNameFromDB(repoName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
