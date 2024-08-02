@@ -11,6 +11,7 @@ type CommitUsecase interface {
 	GetCommitsByRepositoryName(name string) ([]model.Commit, error)
 	SaveCommitIfNotExists(commit *model.Commit) error
 	ResetCollection(name string, startDate time.Time) error
+	GetTopAuthorsByCommitCount(n int) ([]repository.AuthorCommitCount, error)
 }
 
 type commitUsecase struct {
@@ -74,4 +75,8 @@ func (uc *commitUsecase) ResetCollection(name string, startDate time.Time) error
 	}
 
 	return nil
+}
+
+func (uc *commitUsecase) GetTopAuthorsByCommitCount(n int) ([]repository.AuthorCommitCount, error) {
+	return uc.commitRepo.GetTopAuthorsByCommitCount(n)
 }

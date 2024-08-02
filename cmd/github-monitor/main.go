@@ -15,6 +15,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var repoName = "chromium/chromium"
+
 func main() {
 	cfg := config.LoadConfig()
 
@@ -38,14 +40,18 @@ func main() {
 
 	ctrl := controller.NewController(commitUsecase, repoUsecase)
 
-	scheduler.StartCommitScheduler("chromium/chromium", commitUsecase)
+	repoDetails, err := githubClient.GetRepository(repoName)
+	if err != nil {
+		log.Fatalf("Failed to fetch repository details: %v", err)
+	}
+	if err := repoRepo.Save(repoDetails); err != nil {
+		log.Fatalf("Failed to save repository details: %v", err)
+	}
+
+	scheduler.StartCommitScheduler(repoName, commitUsecase)
 
 	r := router.NewRouter(ctrl)
 	if err := r.Run(":8081"); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
-
-//get repo details separately at startup
-// getting commits
-//
