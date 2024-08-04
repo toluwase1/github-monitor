@@ -7,7 +7,7 @@ import (
 )
 
 func StartCommitScheduler(repoName string, commitUsecase usecase.CommitUsecase) {
-	ticker := time.NewTicker(2 * time.Second)
+	ticker := time.NewTicker(1 * time.Hour)
 	go func() {
 		for {
 			select {
