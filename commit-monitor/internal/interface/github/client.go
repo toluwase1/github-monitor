@@ -66,66 +66,10 @@ func (c *GithubClient) GetCommits(repoName string) ([]model.Commit, error) {
 			Author:         apiCommit.Commit.Author.Name,
 			Date:           apiCommit.Commit.Author.Date,
 			URL:            apiCommit.URL,
-			Sha:            apiCommit.SHA,
+			SHA:            apiCommit.SHA,
 			RepositoryName: "chromium",
 		}
 	}
 
 	return commits, nil
-}
-
-func (c *GithubClient) GetRepository(repoName string) (*model.Repository, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s", repoName)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Authorization", "token "+c.Token)
-
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch repository, status: %d", resp.StatusCode)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var apiRepo struct {
-		Name            string    `json:"name"`
-		Description     string    `json:"description"`
-		HTMLURL         string    `json:"html_url"`
-		Language        string    `json:"language"`
-		ForksCount      int       `json:"forks_count"`
-		StargazersCount int       `json:"stargazers_count"`
-		OpenIssuesCount int       `json:"open_issues_count"`
-		WatchersCount   int       `json:"watchers_count"`
-		CreatedAt       time.Time `json:"created_at"`
-		UpdatedAt       time.Time `json:"updated_at"`
-	}
-	if err := json.Unmarshal(body, &apiRepo); err != nil {
-		return nil, err
-	}
-
-	repo := &model.Repository{
-		Name:            apiRepo.Name,
-		Description:     apiRepo.Description,
-		URL:             apiRepo.HTMLURL,
-		Language:        apiRepo.Language,
-		ForksCount:      apiRepo.ForksCount,
-		StarsCount:      apiRepo.StargazersCount,
-		OpenIssuesCount: apiRepo.OpenIssuesCount,
-		WatchersCount:   apiRepo.WatchersCount,
-		CreatedAt:       apiRepo.CreatedAt,
-		UpdatedAt:       apiRepo.UpdatedAt,
-	}
-
-	return repo, nil
 }
