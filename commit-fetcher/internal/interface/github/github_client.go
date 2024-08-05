@@ -1,7 +1,7 @@
 package github
 
 import (
-	"commit-monitor/internal/model"
+	"commit_fetcher/internal/domain/model"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -17,9 +17,9 @@ func NewClient(token string) *Client {
 	return &Client{Token: token}
 }
 
-func (c *Client) GetNewCommits() ([]model.Commit, error) {
-	// URL for fetching the latest commits from the Chromium repository
-	url := "https://api.github.com/repos/chromium/chromium/commits"
+func (c *Client) GetCommits(since, until time.Time) ([]model.Commit, error) {
+	url := fmt.Sprintf("https://api.github.com/repos/chromium/chromium/commits?since=%s&until=%s",
+		since.Format(time.RFC3339), until.Format(time.RFC3339))
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -61,12 +61,11 @@ func (c *Client) GetNewCommits() ([]model.Commit, error) {
 	commits := make([]model.Commit, len(apiCommits))
 	for i, apiCommit := range apiCommits {
 		commits[i] = model.Commit{
-			SHA:            apiCommit.SHA,
-			Message:        apiCommit.Commit.Message,
-			Author:         apiCommit.Commit.Author.Name,
-			Date:           apiCommit.Commit.Author.Date,
-			URL:            apiCommit.URL,
-			RepositoryName: "chromium",
+			SHA:     apiCommit.SHA,
+			Message: apiCommit.Commit.Message,
+			Author:  apiCommit.Commit.Author.Name,
+			Date:    apiCommit.Commit.Author.Date,
+			URL:     apiCommit.URL,
 		}
 	}
 

@@ -19,9 +19,9 @@ type Config struct {
 }
 
 func LoadConfig() Config {
-	err := godotenv.Load()
+	err := godotenv.Load("../.env")
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		log.Fatalf("Error loading .env file %v", err)
 	}
 
 	startDate, err := time.Parse("2006-01-02", os.Getenv("START_DATE"))

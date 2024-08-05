@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672" # RabbitMQ management UI
+
+  commit-fetcher:
+    build:
+      context: ./commit-fetcher
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      SINCE_DATE: ${SINCE_DATE}
+      UNTIL_DATE: ${UNTIL_DATE}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      REPO_NAME: ${REPO_NAME}
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  commit-monitor:
+    build:
+      context: ./commit-monitor
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      REPO_NAME: ${REPO_NAME}
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  github-service:
+    build:
+      context: ./github-service
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
